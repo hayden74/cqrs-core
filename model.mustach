@@ -1,0 +1,98 @@
+package {{package}};
+
+import java.net.URI;
+import java.util.Objects;
+{{#imports}}import {{import}};
+{{/imports}}
+{{#openApiNullable}}
+import org.openapitools.jackson.nullable.JsonNullable;
+{{/openApiNullable}}
+{{#serializableModel}}
+import java.io.Serializable;
+{{/serializableModel}}
+import java.time.OffsetDateTime;
+{{#useBeanValidation}}
+import {{javaxPackage}}.validation.Valid;
+import {{javaxPackage}}.validation.constraints.*;
+{{/useBeanValidation}}
+{{^useBeanValidation}}
+import {{javaxPackage}}.validation.constraints.NotNull;
+{{/useBeanValidation}}
+{{#performBeanValidation}}
+import org.hibernate.validator.constraints.*;
+{{/performBeanValidation}}
+{{#jackson}}
+{{#withXml}}
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+{{/withXml}}
+{{/jackson}}
+{{#swagger2AnnotationLibrary}}
+import io.swagger.v3.oas.annotations.media.Schema;
+{{/swagger2AnnotationLibrary}}
+
+{{#withXml}}
+import {{javaxPackage}}.xml.bind.annotation.*;
+{{/withXml}}
+{{^parent}}
+{{#hateoas}}
+import org.springframework.hateoas.RepresentationModel;
+{{/hateoas}}
+{{/parent}}
+
+import java.util.*;
+import {{javaxPackage}}.annotation.Generated;
+
+{{#models}}
+{{#model}}
+{{#isEnum}}
+{{>enumOuterClass}}
+{{/isEnum}}
+{{^isEnum}}
+/**
+ * {{description}}
+ */
+{{#swagger2AnnotationLibrary}}
+@Schema(description = "{{description}}")
+{{/swagger2AnnotationLibrary}}
+{{#withXml}}
+@JacksonXmlRootElement(localName = "{{classname}}")
+{{/withXml}}
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "{{generatedDate}}")
+public record {{classname}}(
+{{#vars}}
+    {{#required}}@NotNull {{/required}}
+    {{#useBeanValidation}}{{^required}}@Valid {{/required}}{{/useBeanValidation}}
+    {{#isEnum}}{{datatypeWithEnum}} {{name}}{{/isEnum}}{{^isEnum}}{{datatype}} {{name}}{{/isEnum}},
+{{/vars}}
+) implements Serializable {
+
+    {{#additionalPropertiesType}}
+    private final Map<String, {{additionalPropertiesType}}> additionalProperties = new HashMap<>();
+
+    @JsonAnyGetter
+    public Map<String, {{additionalPropertiesType}}> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(String key, {{additionalPropertiesType}} value) {
+        this.additionalProperties.put(key, value);
+    }
+    {{/additionalPropertiesType}}
+
+    {{#vars}}
+    /**
+     * {{description}}
+     */
+    {{#required}}@NotNull {{/required}}
+    {{#useBeanValidation}}{{^required}}@Valid {{/required}}{{/useBeanValidation}}
+    public {{datatype}} {{getter}}() {
+        return this.{{name}};
+    }
+    {{/vars}}
+}
+{{/isEnum}}
+{{/model}}
+{{/models}}
